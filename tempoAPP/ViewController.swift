@@ -30,7 +30,7 @@ class ViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 20)
         label.textAlignment = .center
-        label.text = "São Paulo"
+        //label.text = "São Paulo"
         label.textColor = UIColor.primaryColor
         return label
     }()
@@ -40,7 +40,7 @@ class ViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 70, weight: .bold)
         label.textAlignment = .left
-        label.text = "25°C"
+        //label.text = "25°C"
         label.textColor = UIColor.primaryColor
         return label
     }()
@@ -65,7 +65,7 @@ class ViewController: UIViewController {
     private lazy var humidityValueLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "1000mm"
+        //label.text = "1000mm"
         label.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
         label.textColor = UIColor.contrastColor
         return label
@@ -90,7 +90,7 @@ class ViewController: UIViewController {
     private lazy var windValueLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "10 km/h"
+        //label.text = "10 km/h"
         label.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
         label.textColor = UIColor.contrastColor
         return label
@@ -157,10 +157,31 @@ class ViewController: UIViewController {
         return tableView
     }()
     
+    private let service = Service()
+    private var city = City(lat: "-23.6814346", lon: "-46.9249599", name: "São Paulo")
+    private var forecastResponse: ForecastResponse?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
+        fetchData()
+        
+    }
+    
+    private func fetchData() {
+        service.fetchData(city: city) { [weak self] response in
+            self?.forecastResponse = response
+            DispatchQueue.main.async {
+                self?.loadData()
+            }
+        }
+    }
+    
+    private func loadData() {
+        cityLabel.text = city.name
+        temperatureLabel.text = "\(Int(forecastResponse?.current.temp ?? 0))°C"
+        humidityValueLabel.text = "\(forecastResponse?.current.humidity ?? 0) mm"
+        windValueLabel.text = "\(forecastResponse?.current.windSpeed ?? 0) Km/h"
     }
     
     private func setupView(){
@@ -216,12 +237,13 @@ class ViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             temperatureLabel.topAnchor.constraint(equalTo: cityLabel.bottomAnchor, constant: 12),
-            temperatureLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 26)
+            temperatureLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 18),
+            temperatureLabel.heightAnchor.constraint(equalToConstant: 71)
         ])
         
         NSLayoutConstraint.activate([
-            weatherIcon.leadingAnchor.constraint(equalTo: temperatureLabel.trailingAnchor, constant: 15),
-            weatherIcon.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -26),
+            weatherIcon.leadingAnchor.constraint(equalTo: temperatureLabel.trailingAnchor, constant: 8),
+            weatherIcon.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -18),
             weatherIcon.heightAnchor.constraint(equalToConstant: 86),
             weatherIcon.widthAnchor.constraint(equalToConstant: 86),
             weatherIcon.centerYAnchor.constraint(equalTo: temperatureLabel.centerYAnchor)
