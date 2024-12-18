@@ -36,7 +36,8 @@ class Service {
                 let forecastResponse = try JSONDecoder().decode(ForecastResponse.self, from: data)
                 completion(forecastResponse)
             } catch {
-                print(error)
+                //print(error)
+                print(String(data: data, encoding: .utf8) ?? "")
                 completion(nil)
             }
         }
